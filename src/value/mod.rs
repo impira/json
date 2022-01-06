@@ -108,6 +108,8 @@ pub use crate::number::Number;
 #[cfg(feature = "raw_value")]
 pub use crate::raw::{to_raw_value, RawValue};
 
+use std::sync::Arc;
+
 /// Represents any valid JSON value.
 ///
 /// See the [`serde_json::value` module documentation](self) for usage examples.
@@ -172,6 +174,10 @@ pub enum Value {
     /// let v = json!({ "an": "object" });
     /// ```
     Object(Map<String, Value>),
+
+    /// Represents an Arc reference to a value.
+    ///
+    External(Arc<Value>)
 }
 
 impl Debug for Value {
@@ -190,6 +196,9 @@ impl Debug for Value {
                 formatter.write_str("Object(")?;
                 Debug::fmt(v, formatter)?;
                 formatter.write_str(")")
+            }
+            Value::External(ref v) => {
+                Debug::fmt(v.as_ref(), formatter)
             }
         }
     }

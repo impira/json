@@ -219,6 +219,10 @@ impl<'de> serde::Deserializer<'de> for Value {
             Value::String(v) => visitor.visit_string(v),
             Value::Array(v) => visit_array(v, visitor),
             Value::Object(v) => visit_object(v, visitor),
+            Value::External(v) => {
+                // I have no idea what this means.
+                v.as_ref().clone().deserialize_any(visitor)
+            },
         }
     }
 
@@ -715,6 +719,7 @@ impl<'de> serde::Deserializer<'de> for &'de Value {
             Value::String(ref v) => visitor.visit_borrowed_str(v),
             Value::Array(ref v) => visit_array_ref(v, visitor),
             Value::Object(ref v) => visit_object_ref(v, visitor),
+            Value::External(ref v) => v.as_ref().deserialize_any(visitor),
         }
     }
 
@@ -1279,6 +1284,7 @@ impl Value {
             Value::String(ref s) => Unexpected::Str(s),
             Value::Array(_) => Unexpected::Seq,
             Value::Object(_) => Unexpected::Map,
+            Value::External(ref v) => v.as_ref().unexpected()
         }
     }
 }
