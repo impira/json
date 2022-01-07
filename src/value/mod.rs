@@ -849,6 +849,11 @@ impl Value {
     pub fn take(&mut self) -> Value {
         mem::replace(self, Value::Null)
     }
+
+    /// Converts an Arc<Value> into a value
+    pub fn externalize(self: &Arc<Value>) -> Value {
+        Value::External(Arc::clone(self))
+    }
 }
 
 /// The default value is `Value::Null`.
