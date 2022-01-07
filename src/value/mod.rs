@@ -113,7 +113,7 @@ use std::sync::Arc;
 /// Represents any valid JSON value.
 ///
 /// See the [`serde_json::value` module documentation](self) for usage examples.
-#[derive(Clone, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq, Hash)]
 pub enum Value {
     /// Represents a JSON null value.
     ///
@@ -177,7 +177,7 @@ pub enum Value {
 
     /// Represents an Arc reference to a value.
     ///
-    External(Arc<Value>)
+    External(Arc<Value>),
 }
 
 impl Debug for Value {
@@ -197,9 +197,7 @@ impl Debug for Value {
                 Debug::fmt(v, formatter)?;
                 formatter.write_str(")")
             }
-            Value::External(ref v) => {
-                Debug::fmt(v.as_ref(), formatter)
-            }
+            Value::External(ref v) => Debug::fmt(v.as_ref(), formatter),
         }
     }
 }
@@ -707,6 +705,8 @@ impl Value {
     ///
     /// ```
     /// # use serde_json::json;
+    /// ```
+    /// # use serde_json::json;
     /// #
     /// let v = json!({ "a": null, "b": false });
     ///
@@ -854,6 +854,14 @@ impl Value {
     pub fn externalize(self: &Arc<Value>) -> Value {
         Value::External(Arc::clone(self))
     }
+
+    /// Converts an Arc<Value> into the innermost Arc<Value>
+    pub fn internalize<'a>(self: &'a Arc<Value>) -> &'a Arc<Value> {
+        match self.as_ref() {
+            Value::External(v) => v.internalize(),
+            _ => self,
+        }
+    }
 }
 
 /// The default value is `Value::Null`.
@@ -999,5 +1007,5 @@ pub fn from_value<T>(value: Value) -> Result<T, Error>
 where
     T: DeserializeOwned,
 {
-    T::deserialize(value)
+	T::deserialize(value)
 }
