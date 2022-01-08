@@ -113,7 +113,7 @@ use std::sync::Arc;
 /// Represents any valid JSON value.
 ///
 /// See the [`serde_json::value` module documentation](self) for usage examples.
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Clone, Hash, Eq)]
 pub enum Value {
     /// Represents a JSON null value.
     ///
@@ -178,6 +178,24 @@ pub enum Value {
     /// Represents an Arc reference to a value.
     ///
     External(Arc<Value>),
+}
+
+impl PartialEq for Value {
+    fn eq(&self, other: &Self) -> bool {
+        let left = self.resolve();
+        let right = self.resolve();
+
+        use Value::*;
+        match (left, right) {
+            (Null, Null) => true,
+            (Bool(l), Bool(r)) => l == r,
+            (Number(l), Number(r)) => l == r,
+            (String(l), String(r)) => l == r,
+            (Array(l), Array(r)) => l == r,
+            (Object(l), Object(r)) => l == r,
+            _ => false,
+        }
+    }
 }
 
 impl Debug for Value {
@@ -855,6 +873,14 @@ impl Value {
         Value::External(Arc::clone(self))
     }
 
+    /// Converts a value into an Arc<Value>
+    pub fn to_arc(self: Value) -> Arc<Value> {
+        match self {
+            Value::External(v) => v,
+            _ => Arc::new(self),
+        }
+    }
+
     /// Converts an Arc<Value> into the innermost Arc<Value>
     pub fn internalize<'a>(self: &'a Arc<Value>) -> &'a Arc<Value> {
         match self.as_ref() {
@@ -862,12 +888,12 @@ impl Value {
             _ => self,
         }
     }
-    
+
     /// Resolves a value to its inner most representation, stripping away Arcs
     pub fn resolve<'a>(self: &'a Value) -> &'a Value {
         match self {
             Value::External(v) => v.internalize().as_ref().resolve(),
-            _ => self
+            _ => self,
         }
     }
 }
@@ -1015,5 +1041,5 @@ pub fn from_value<T>(value: Value) -> Result<T, Error>
 where
     T: DeserializeOwned,
 {
-	T::deserialize(value)
+    T::deserialize(value)
 }
