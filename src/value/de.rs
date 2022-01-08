@@ -120,15 +120,10 @@ impl<'de> Deserialize<'de> for Value {
 
                         values.insert(first_key, tri!(visitor.next_value()));
                         while let Some((key, value)) = tri!(visitor.next_entry()) {
-
-                            let wrapped = match value {
-                                Value::Object(o) => Value::External(std::sync::Arc::new(Value::Object(o))),
-                                _ => value,
-                            };
-                            values.insert(key, wrapped);
+                            values.insert(key, value);
                         }
 
-                        Ok(Value::Object(values))
+                        Ok(Value::External(std::sync::Arc::new(Value::Object(values))))
                     }
                     None => Ok(Value::Object(Map::new())),
                 }

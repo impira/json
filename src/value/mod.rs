@@ -183,7 +183,7 @@ pub enum Value {
 impl PartialEq for Value {
     fn eq(&self, other: &Self) -> bool {
         let left = self.resolve();
-        let right = self.resolve();
+        let right = other.resolve();
 
         use Value::*;
         match (left, right) {
@@ -215,7 +215,11 @@ impl Debug for Value {
                 Debug::fmt(v, formatter)?;
                 formatter.write_str(")")
             }
-            Value::External(ref v) => Debug::fmt(v.as_ref(), formatter),
+            Value::External(ref v) => {
+                formatter.write_str("External(")?;
+                Debug::fmt(v.as_ref(), formatter)?;
+                formatter.write_str(")")
+            }
         }
     }
 }
