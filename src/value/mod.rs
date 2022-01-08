@@ -862,6 +862,14 @@ impl Value {
             _ => self,
         }
     }
+    
+    /// Resolves a value to its inner most representation, stripping away Arcs
+    pub fn resolve<'a>(self: &'a Value) -> &'a Value {
+        match self {
+            Value::External(v) => v.internalize().as_ref().resolve(),
+            _ => self
+        }
+    }
 }
 
 /// The default value is `Value::Null`.

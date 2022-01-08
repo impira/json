@@ -120,7 +120,12 @@ impl<'de> Deserialize<'de> for Value {
 
                         values.insert(first_key, tri!(visitor.next_value()));
                         while let Some((key, value)) = tri!(visitor.next_entry()) {
-                            values.insert(key, value);
+
+                            let wrapped = match value {
+                                Value::Object(o) => Value::External(std::sync::Arc::new(Value::Object(o))),
+                                _ => value,
+                            };
+                            values.insert(key, wrapped);
                         }
 
                         Ok(Value::Object(values))
@@ -222,7 +227,7 @@ impl<'de> serde::Deserializer<'de> for Value {
             Value::External(v) => {
                 // I have no idea what this means.
                 v.as_ref().clone().deserialize_any(visitor)
-            },
+            }
         }
     }
 
@@ -1284,7 +1289,7 @@ impl Value {
             Value::String(ref s) => Unexpected::Str(s),
             Value::Array(_) => Unexpected::Seq,
             Value::Object(_) => Unexpected::Map,
-            Value::External(ref v) => v.as_ref().unexpected()
+            Value::External(ref v) => v.as_ref().unexpected(),
         }
     }
 }
