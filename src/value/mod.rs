@@ -940,6 +940,7 @@ impl Default for Value {
 mod de;
 mod from;
 mod index;
+mod ord;
 mod partial_eq;
 mod ser;
 
