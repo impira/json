@@ -99,10 +99,15 @@ macro_rules! overflow {
     };
 }
 
-pub(crate) enum ParserNumber {
+/// Parser implementation for numbers
+pub enum ParserNumber {
+    /// TODO
     F64(f64),
+    /// TODO
     U64(u64),
+    /// TODO
     I64(i64),
+    /// TODO
     #[cfg(feature = "arbitrary_precision")]
     String(String),
 }
