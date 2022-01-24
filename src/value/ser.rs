@@ -33,7 +33,6 @@ impl Serialize for Value {
                 }
                 map.end()
             }
-            Value::External(ref v) => v.as_ref().serialize(serializer),
         }
     }
 }

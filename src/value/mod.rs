@@ -108,12 +108,10 @@ pub use crate::number::Number;
 #[cfg(feature = "raw_value")]
 pub use crate::raw::{to_raw_value, RawValue};
 
-use std::sync::Arc;
-
 /// Represents any valid JSON value.
 ///
 /// See the [`serde_json::value` module documentation](self) for usage examples.
-#[derive(Clone, Hash, Eq)]
+#[derive(Clone, Eq, PartialEq)]
 pub enum Value {
     /// Represents a JSON null value.
     ///
@@ -174,28 +172,6 @@ pub enum Value {
     /// let v = json!({ "an": "object" });
     /// ```
     Object(Map<String, Value>),
-
-    /// Represents an Arc reference to a value.
-    ///
-    External(Arc<Value>),
-}
-
-impl PartialEq for Value {
-    fn eq(&self, other: &Self) -> bool {
-        let left = self.resolve();
-        let right = other.resolve();
-
-        use Value::*;
-        match (left, right) {
-            (Null, Null) => true,
-            (Bool(l), Bool(r)) => l == r,
-            (Number(l), Number(r)) => l == r,
-            (String(l), String(r)) => l == r,
-            (Array(l), Array(r)) => l == r,
-            (Object(l), Object(r)) => l == r,
-            _ => false,
-        }
-    }
 }
 
 impl Debug for Value {
@@ -213,11 +189,6 @@ impl Debug for Value {
             Value::Object(ref v) => {
                 formatter.write_str("Object(")?;
                 Debug::fmt(v, formatter)?;
-                formatter.write_str(")")
-            }
-            Value::External(ref v) => {
-                formatter.write_str("External(")?;
-                Debug::fmt(v.as_ref(), formatter)?;
                 formatter.write_str(")")
             }
         }
@@ -727,8 +698,6 @@ impl Value {
     ///
     /// ```
     /// # use serde_json::json;
-    /// ```
-    /// # use serde_json::json;
     /// #
     /// let v = json!({ "a": null, "b": false });
     ///
@@ -870,35 +839,6 @@ impl Value {
     /// ```
     pub fn take(&mut self) -> Value {
         mem::replace(self, Value::Null)
-    }
-
-    /// Converts an Arc<Value> into a value
-    pub fn externalize(self: &Arc<Value>) -> Value {
-        Value::External(Arc::clone(self))
-    }
-
-    /// Converts a value into an Arc<Value>
-    pub fn to_arc(self: Value) -> Arc<Value> {
-        match self {
-            Value::External(v) => v,
-            _ => Arc::new(self),
-        }
-    }
-
-    /// Converts an Arc<Value> into the innermost Arc<Value>
-    pub fn internalize<'a>(self: &'a Arc<Value>) -> &'a Arc<Value> {
-        match self.as_ref() {
-            Value::External(v) => v.internalize(),
-            _ => self,
-        }
-    }
-
-    /// Resolves a value to its inner most representation, stripping away Arcs
-    pub fn resolve<'a>(self: &'a Value) -> &'a Value {
-        match self {
-            Value::External(v) => v.internalize().as_ref().resolve(),
-            _ => self,
-        }
     }
 }
 

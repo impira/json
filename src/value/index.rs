@@ -152,7 +152,6 @@ impl<'a> Display for Type<'a> {
             Value::String(_) => formatter.write_str("string"),
             Value::Array(_) => formatter.write_str("array"),
             Value::Object(_) => formatter.write_str("object"),
-            Value::External(ref v) => v.as_ref().fmt(formatter),
         }
     }
 }
