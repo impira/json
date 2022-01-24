@@ -178,7 +178,7 @@ struct ErrorImpl {
     column: usize,
 }
 
-pub(crate) enum ErrorCode {
+pub enum ErrorCode {
     /// Catchall for syntax error messages
     Message(Box<str>),
 

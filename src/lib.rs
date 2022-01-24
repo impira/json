@@ -356,7 +356,7 @@
     clippy::must_use_candidate,
 )]
 #![allow(non_upper_case_globals)]
-#![deny(missing_docs)]
+// #![deny(missing_docs)]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
@@ -398,18 +398,18 @@ pub mod map;
 #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 pub mod ser;
 #[cfg(not(feature = "std"))]
-mod ser;
+pub mod ser;
 pub mod value;
 
 mod features_check;
 
-mod io;
+pub mod io;
 #[cfg(feature = "std")]
-mod iter;
+pub mod iter;
 #[cfg(feature = "float_roundtrip")]
-mod lexical;
-mod number;
-mod read;
+pub mod lexical;
+pub mod number;
+pub mod read;
 
 #[cfg(feature = "raw_value")]
-mod raw;
+pub mod raw;
