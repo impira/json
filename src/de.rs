@@ -824,7 +824,7 @@ impl<'de, R: Read<'de>> Deserializer<R> {
         }
     }
 
-    fn parse_any_signed_number(&mut self) -> Result<ParserNumber> {
+    pub fn parse_any_signed_number(&mut self) -> Result<ParserNumber> {
         let peek = match tri!(self.peek()) {
             Some(b) => b,
             None => {
