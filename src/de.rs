@@ -883,6 +883,8 @@ impl<'de, R: Read<'de>> Deserializer<R> {
     #[cfg(feature = "arbitrary_precision")]
     fn scan_integer(&mut self, buf: &mut String) -> Result<()> {
         match tri!(self.scan_or_eof(buf)) {
+            /*
+             * IMPIRA CHANGE (support multiple leading 0s)
             b'0' => {
                 // There can be only one leading '0'.
                 match tri!(self.peek_or_null()) {
@@ -890,7 +892,8 @@ impl<'de, R: Read<'de>> Deserializer<R> {
                     _ => self.scan_number(buf),
                 }
             }
-            b'1'..=b'9' => loop {
+            */
+            b'0'..=b'9' => loop {
                 match tri!(self.peek_or_null()) {
                     c @ b'0'..=b'9' => {
                         self.eat_char();
