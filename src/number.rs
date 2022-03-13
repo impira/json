@@ -606,7 +606,7 @@ impl<'de, 'a> Deserializer<'de> for &'a Number {
 }
 
 #[cfg(feature = "arbitrary_precision")]
-pub(crate) struct NumberDeserializer {
+pub struct NumberDeserializer {
     pub number: Option<String>,
 }
 
